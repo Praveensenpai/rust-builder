@@ -11,20 +11,20 @@ Use `rbuild` whenever you need to compile a Rust project, crate, or binary witho
 
 ## 🚀 When to Use
 
-- **Heavy Crates**: Compiling projects with large dependency trees (Tokio, Axum, Bevy, Serde, Syn, Wasm, etc.) where local compilation takes several minutes or overheats the machine.
-- **Resource Conservation**: Compiling code without pegging local CPU cores at 100% or draining battery on mobile/laptop machines.
+- **Heavy Crates**: Compiling projects with large dependency trees (Tokio, Axum, Bevy, Serde, Syn, Wasm, etc.) where local compilation takes several minutes or pegs all CPU cores.
+- **Resource Conservation**: Compiling code without maxing local CPU cores or causing fan noise and thermal throttling.
 - **Incremental Fast Builds**: Making iterative changes to code while taking advantage of persistent remote `target/` directories and `sccache` hits.
 - **Autonomous Agent Workflows**: Any AI agent tasked with building or verifying a Rust project can run `rbuild` directly.
 
 ### ⚖️ Local vs Remote Decision Rule (Quota Awareness)
 - **Do It Local If**:
   - The monthly or weekly free tier Codespaces duration is running low (<5–10 hours left).
-  - The project is small, trivial, or has few dependencies (where local compile takes <10s).
-  - The machine is plugged into AC power and idle.
+  - The project is small, simple, or has minimal dependencies (where local compile finishes in a few seconds).
 - **Use `rbuild` If**:
-  - Compiling large workspaces or dependencies that take minutes locally.
+  - Healthy free tier hours remain on the account.
+  - Compiling large workspaces or crates with heavy dependencies that take minutes.
   - Doing heavy release builds with Link Time Optimization (LTO).
-  - Running on battery or keeping the local system cold and quiet.
+  - You want to keep the local machine completely quiet with cold CPUs.
 
 ---
 

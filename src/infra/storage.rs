@@ -25,7 +25,7 @@ echo "CAPACITY_OK: $USAGE"
     );
 
     let output = Command::new("gh")
-        .args(["codespace", "ssh", "-c", codespace_name, "--", "bash", "-c", &script])
+        .args(["codespace", "ssh", "-c", codespace_name, "--", &script])
         .output()
         .context("Failed to check remote disk capacity")?;
 

@@ -21,11 +21,11 @@ pub fn execute_remote_build(
     };
 
     let remote_cmd = format!(
-        "cd '{remote_dir}' && {clean_step}mold -V &>/dev/null || true; cargo {joined_args}"
+        "export RUSTC_WRAPPER=sccache && cd '{remote_dir}' && {clean_step}cargo {joined_args}"
     );
 
     let output = Command::new("gh")
-        .args(["codespace", "ssh", "-c", &config.codespace, "--", "bash", "-c", &remote_cmd])
+        .args(["codespace", "ssh", "-c", &config.codespace, "--", &remote_cmd])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()

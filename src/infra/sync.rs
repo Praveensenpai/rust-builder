@@ -41,7 +41,7 @@ pub fn sync_project_source(
     let remote_cmd = format!("mkdir -p '{remote_dir}' && tar -xzf - -C '{remote_dir}'");
 
     let remote_proc = Command::new("gh")
-        .args(["codespace", "ssh", "-c", codespace_name, "--", "bash", "-c", &remote_cmd])
+        .args(["codespace", "ssh", "-c", codespace_name, "--", &remote_cmd])
         .stdin(tar_out)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

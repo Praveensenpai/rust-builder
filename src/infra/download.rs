@@ -22,7 +22,7 @@ pub fn retrieve_binary(
 
     let cat_cmd = format!("cat '{remote_path}'");
     let output = Command::new("gh")
-        .args(["codespace", "ssh", "-c", codespace_name, "--", "bash", "-c", &cat_cmd])
+        .args(["codespace", "ssh", "-c", codespace_name, "--", &cat_cmd])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()
