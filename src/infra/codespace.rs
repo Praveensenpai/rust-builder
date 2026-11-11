@@ -112,9 +112,8 @@ fn create_codespace(repo: &str, display_name: &str) -> Result<()> {
 }
 
 fn wake_codespace(name: &str) -> Result<()> {
-    // A quick SSH check automatically starts a stopped codespace
     let _ = Command::new("gh")
-        .args(["codespace", "ssh", "-c", name, "--", "echo", "awake"])
+        .args(["api", "-X", "POST", &format!("/user/codespaces/{name}/start")])
         .output();
     Ok(())
 }
