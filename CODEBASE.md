@@ -47,7 +47,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 ### `src/domain.rs` (Role: domain, Lines: 2)
 - **Responsibility**: Core domain logic in src/domain.rs
 
-### `src/infra/codespace.rs` (Role: infra, Lines: 140)
+### `src/infra/codespace.rs` (Role: infra, Lines: 147)
 - **Responsibility**: Core infra logic in src/infra/codespace.rs
 - **Imports**: use anyhow :: { Context , Result , bail } , use indicatif :: ProgressBar , use serde :: Deserialize , use std :: process :: Command , use std :: time :: Duration , use crate :: domain :: config :: DEFAULT_IDLE_TIMEOUT 
 - **Types & Enums**:
