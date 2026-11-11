@@ -1,0 +1,29 @@
+[package]
+name = "rust-builder"
+version = "0.1.0"
+edition = "2021"
+description = "Remote Rust compiler on GitHub Codespaces with zero local CPU and persistent SSD cache"
+license = "MIT"
+authors = ["Praveen Senpai <pvnt20@gmail.com>"]
+
+[[bin]]
+name = "rbuild"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive", "cargo"] }
+console = "0.15"
+indicatif = "0.17"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+toml = "0.8"
+walkdir = "2.5"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
