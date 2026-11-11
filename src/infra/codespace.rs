@@ -52,14 +52,17 @@ pub fn ensure_builder_codespace(
     spinner: &ProgressBar,
 ) -> Result<CodespaceItem> {
     if let Some(existing) = find_builder_codespace(target_name)? {
-        if existing.state != "Available" {
+        if existing.state == "Available" {
+            return Ok(existing);
+        }
+        if existing.state == "Shutdown" || existing.state == "Stopped" {
             spinner.set_message(format!(
                 "Waking up Codespace {} ({}) ...",
                 existing.name, existing.state
             ));
             wake_codespace(&existing.name)?;
         }
-        return Ok(existing);
+        return wait_until_available(target_name, spinner);
     }
 
     spinner.set_message(format!(
@@ -67,19 +70,20 @@ pub fn ensure_builder_codespace(
     ));
 
     create_codespace(repo, target_name)?;
+    wait_until_available(target_name, spinner)
+}
 
-    // Poll until available
-    for _ in 0..30 {
-        std::thread::sleep(Duration::from_secs(3));
+fn wait_until_available(target_name: &str, spinner: &ProgressBar) -> Result<CodespaceItem> {
+    for _ in 0..60 {
         if let Some(cs) = find_builder_codespace(target_name)? {
             if cs.state == "Available" {
                 return Ok(cs);
             }
-            spinner.set_message(format!("Codespace starting: {} ...", cs.state));
+            spinner.set_message(format!("Waiting for Codespace to become ready ({}) ...", cs.state));
         }
+        std::thread::sleep(Duration::from_secs(3));
     }
-
-    bail!("Timed out waiting for new Codespace to reach Available state")
+    bail!("Timed out waiting for Codespace to reach Available state")
 }
 
 fn create_codespace(repo: &str, display_name: &str) -> Result<()> {
@@ -91,6 +95,9 @@ fn create_codespace(repo: &str, display_name: &str) -> Result<()> {
             repo,
             "--display-name",
             display_name,
+            "--machine",
+            "standardLinux32gb",
+            "--default-permissions",
             "--idle-timeout",
             DEFAULT_IDLE_TIMEOUT,
         ])

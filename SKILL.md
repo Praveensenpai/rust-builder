@@ -16,6 +16,16 @@ Use `rbuild` whenever you need to compile a Rust project, crate, or binary witho
 - **Incremental Fast Builds**: Making iterative changes to code while taking advantage of persistent remote `target/` directories and `sccache` hits.
 - **Autonomous Agent Workflows**: Any AI agent tasked with building or verifying a Rust project can run `rbuild` directly.
 
+### ⚖️ Local vs Remote Decision Rule (Quota Awareness)
+- **Do It Local If**:
+  - The monthly or weekly free tier Codespaces duration is running low (<5–10 hours left).
+  - The project is small, trivial, or has few dependencies (where local compile takes <10s).
+  - The machine is plugged into AC power and idle.
+- **Use `rbuild` If**:
+  - Compiling large workspaces or dependencies that take minutes locally.
+  - Doing heavy release builds with Link Time Optimization (LTO).
+  - Running on battery or keeping the local system cold and quiet.
+
 ---
 
 ## 🛠️ Usage & Commands
