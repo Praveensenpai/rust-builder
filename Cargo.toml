@@ -1,6 +1,6 @@
 [package]
 name = "rust-builder"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Remote Rust compiler on GitHub Codespaces with zero local CPU and persistent SSD cache"
 license = "MIT"

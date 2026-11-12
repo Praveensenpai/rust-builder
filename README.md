@@ -61,6 +61,9 @@ rbuild -i
 # Build specific binary target in workspace
 rbuild --bin my-tool
 
+# Keep runner warm for rapid consecutive builds (default is immediate auto-stop)
+rbuild -w
+
 # Check status of builder Codespaces and storage
 rbuild status
 
@@ -78,7 +81,7 @@ rbuild stop
 | **mold Linker** | System clang + `-fuse-ld=mold` | Linking completes in sub-seconds rather than 15–30s |
 | **sccache** | Object file cache | Repeated builds with identical code hit 100% cache |
 | **Auto-Purge** | Proactive capacity daemon | When disk exceeds 80%, oldest `target/` dirs are pruned |
-| **Auto-Stop** | 10-minute idle timeout | Codespace shuts down when idle, saving monthly quota |
+| **Auto-Stop** | Immediate post-build shutdown | Codespace stops immediately by default to save quota (`-w` keeps warm) |
 
 ---
 

@@ -75,7 +75,14 @@ rbuild -f
 rbuild --target x86_64-unknown-linux-musl
 ```
 
-### 8. Codespace Management & Maintenance
+### 8. Keep Runner Warm for Consecutive Iterations
+```bash
+# By default, rbuild automatically stops the Codespace after retrieval to save quota.
+# Pass -w or --keep-warm during rapid debugging to leave the VM running:
+rbuild -w
+```
+
+### 9. Codespace Management & Maintenance
 ```bash
 # Check status of builder Codespaces and storage
 rbuild status
@@ -125,3 +132,4 @@ rbuild clean
 - **First Run (Cold Dependencies)**: Codespace downloads dependencies once and caches them to SSD.
 - **Subsequent Runs (Warm Cache)**: Only your modified `.rs` files are recompiled. Linking finishes in under 1 second via `mold`. Typical incremental build time: **2–4 seconds**.
 - **Storage Protection**: If Codespace disk usage exceeds 80%, `rbuild` automatically purges the oldest inactive `target/` directories before compiling.
+- **Auto-Stop By Default**: The Codespace runner is immediately stopped after streaming the binary to disk to prevent wasting monthly free tier hours. If you are doing fast back-to-back iterations, pass `-w` (`--keep-warm`).

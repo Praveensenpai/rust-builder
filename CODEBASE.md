@@ -15,7 +15,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 
 ## 3. Module & Interface Skeleton
 
-### `src/cli.rs` (Role: cli, Lines: 71)
+### `src/cli.rs` (Role: cli, Lines: 74)
 - **Responsibility**: Core cli logic in src/cli.rs
 - **Imports**: use clap :: { Parser , Subcommand } , use std :: path :: PathBuf 
 - **Types & Enums**:
@@ -24,7 +24,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
   pub enum Commands
   ```
 
-### `src/domain/config.rs` (Role: domain, Lines: 37)
+### `src/domain/config.rs` (Role: domain, Lines: 39)
 - **Responsibility**: Core domain logic in src/domain/config.rs
 - **Types & Enums**:
   ```rust
@@ -47,7 +47,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 ### `src/domain.rs` (Role: domain, Lines: 2)
 - **Responsibility**: Core domain logic in src/domain.rs
 
-### `src/infra/codespace.rs` (Role: infra, Lines: 147)
+### `src/infra/codespace.rs` (Role: infra, Lines: 146)
 - **Responsibility**: Core infra logic in src/infra/codespace.rs
 - **Imports**: use anyhow :: { Context , Result , bail } , use indicatif :: ProgressBar , use serde :: Deserialize , use std :: process :: Command , use std :: time :: Duration , use crate :: domain :: config :: DEFAULT_IDLE_TIMEOUT 
 - **Types & Enums**:
@@ -99,7 +99,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 - **Responsibility**: Core infra logic in src/infra.rs
 - **Imports**: pub use codespace :: * , pub use download :: * , pub use remote_builder :: * , pub use storage :: * , pub use sync :: * 
 
-### `src/main.rs` (Role: general, Lines: 193)
+### `src/main.rs` (Role: general, Lines: 207)
 - **Responsibility**: Core general logic in src/main.rs
 - **Imports**: use anyhow :: { Context , Result } , use clap :: Parser , use console :: style , use std :: process :: ExitCode , use std :: time :: Instant , use cli :: { Cli , Commands } , use domain :: config :: { BuildConfig , DEFAULT_CODESPACE_NAME } , use domain :: project :: { ProjectManifest , discover_project } 
 

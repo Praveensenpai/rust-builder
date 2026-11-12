@@ -75,6 +75,7 @@ fn build_and_fetch(
 
     spinner.finish_and_clear();
     report_completion(bin_name, &local_bin, bytes, start_time, config.install);
+    handle_post_build_lifecycle(&cs.name, config.keep_warm)?;
     Ok(())
 }
 
@@ -91,7 +92,20 @@ fn create_build_config(cli: &Cli, codespace: &str, bin_name: &str) -> BuildConfi
         clean: cli.clean,
         force: cli.force,
         install: cli.install,
+        keep_warm: cli.keep_warm,
     }
+}
+
+fn handle_post_build_lifecycle(cs_name: &str, keep_warm: bool) -> Result<()> {
+    if !keep_warm {
+        let stop_spinner = ui::create_spinner("Stopping Codespace runner to conserve quota...");
+        let _ = infra::stop_codespace(cs_name);
+        stop_spinner.finish_and_clear();
+        ui::print_info("↳ Server state:", "Stopped (quota saved)");
+    } else {
+        ui::print_info("↳ Server state:", "Kept warm (auto-stops after 10m idle)");
+    }
+    Ok(())
 }
 
 fn report_completion(

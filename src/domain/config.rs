@@ -16,6 +16,7 @@ pub struct BuildConfig {
     pub clean: bool,
     pub force: bool,
     pub install: bool,
+    pub keep_warm: bool,
 }
 
 impl Default for BuildConfig {
@@ -32,6 +33,7 @@ impl Default for BuildConfig {
             clean: false,
             force: false,
             install: false,
+            keep_warm: false,
         }
     }
 }

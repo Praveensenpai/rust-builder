@@ -51,6 +51,9 @@ pub struct Cli {
     #[arg(short, long, help = "Force remote rebuild without skipping unchanged revisions")]
     pub force: bool,
 
+    #[arg(short = 'w', long, help = "Keep Codespace running after build (default: auto-stops immediately)")]
+    pub keep_warm: bool,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
