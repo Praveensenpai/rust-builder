@@ -6,7 +6,7 @@ Build your Rust app on a fast cloud computer instead of your own.
 
 ## Install (easy)
 
-Open Terminal and run:
+Open Terminal and run (works from any folder):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Praveensenpai/rust-builder/main/install.sh | bash
@@ -17,6 +17,8 @@ After install, restart your terminal if needed, then check:
 ```bash
 rbuild --help
 ```
+
+To update later, run the same install command again.
 
 ## Before you start
 
