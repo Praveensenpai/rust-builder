@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use indicatif::ProgressBar;
 use serde::Deserialize;
 use std::process::Command;
@@ -16,7 +16,12 @@ pub struct CodespaceItem {
 
 pub fn list_codespaces() -> Result<Vec<CodespaceItem>> {
     let output = Command::new("gh")
-        .args(["codespace", "list", "--json", "name,displayName,state,repository"])
+        .args([
+            "codespace",
+            "list",
+            "--json",
+            "name,displayName,state,repository",
+        ])
         .output()
         .context("Failed to execute 'gh codespace list'")?;
 
@@ -25,8 +30,8 @@ pub fn list_codespaces() -> Result<Vec<CodespaceItem>> {
         bail!("Failed to list codespaces: {err}");
     }
 
-    let items: Vec<CodespaceItem> = serde_json::from_slice(&output.stdout)
-        .context("Failed to parse codespace JSON list")?;
+    let items: Vec<CodespaceItem> =
+        serde_json::from_slice(&output.stdout).context("Failed to parse codespace JSON list")?;
 
     Ok(items)
 }
@@ -79,7 +84,10 @@ fn wait_until_available(target_name: &str, spinner: &ProgressBar) -> Result<Code
             if cs.state == "Available" {
                 return Ok(cs);
             }
-            spinner.set_message(format!("Waiting for Codespace to become ready ({}) ...", cs.state));
+            spinner.set_message(format!(
+                "Waiting for Codespace to become ready ({}) ...",
+                cs.state
+            ));
         }
         std::thread::sleep(Duration::from_secs(3));
     }
@@ -113,7 +121,12 @@ fn create_codespace(repo: &str, display_name: &str) -> Result<()> {
 
 fn wake_codespace(name: &str) -> Result<()> {
     let _ = Command::new("gh")
-        .args(["api", "-X", "POST", &format!("/user/codespaces/{name}/start")])
+        .args([
+            "api",
+            "-X",
+            "POST",
+            &format!("/user/codespaces/{name}/start"),
+        ])
         .output();
     Ok(())
 }

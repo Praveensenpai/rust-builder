@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use indicatif::ProgressBar;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;

@@ -64,6 +64,11 @@ rbuild --bin my-tool
 # Keep runner warm for rapid consecutive builds (default is immediate auto-stop)
 rbuild -w
 
+# Run remote verification instead of building a binary
+rbuild --check
+rbuild --clippy
+rbuild --test
+
 # Check status of builder Codespaces and storage
 rbuild status
 

@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use indicatif::ProgressBar;
 use std::path::Path;
 use std::process::{Command, Stdio};

@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -82,10 +82,7 @@ fn find_cargo_toml(start_path: &Path) -> Result<PathBuf> {
     }
 }
 
-fn resolve_name_and_binaries(
-    parsed: &CargoToml,
-    root_dir: &Path,
-) -> Result<(String, Vec<String>)> {
+fn resolve_name_and_binaries(parsed: &CargoToml, root_dir: &Path) -> Result<(String, Vec<String>)> {
     if let Some(pkg) = &parsed.package {
         let mut bins = Vec::new();
         if let Some(bin_list) = &parsed.bin {

@@ -15,7 +15,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 
 ## 3. Module & Interface Skeleton
 
-### `src/cli.rs` (Role: cli, Lines: 74)
+### `src/cli.rs` (Role: cli, Lines: 111)
 - **Responsibility**: Core cli logic in src/cli.rs
 - **Imports**: use clap :: { Parser , Subcommand } , use std :: path :: PathBuf 
 - **Types & Enums**:
@@ -24,14 +24,19 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
   pub enum Commands
   ```
 
-### `src/domain/config.rs` (Role: domain, Lines: 39)
+### `src/domain/config.rs` (Role: domain, Lines: 56)
 - **Responsibility**: Core domain logic in src/domain/config.rs
 - **Types & Enums**:
   ```rust
   pub struct BuildConfig
+  pub enum VerifyKind { Check, Clippy, Test }
+  ```
+- **Public Functions & Signatures**:
+  ```rust
+  fn cargo_subcommand (self) -> & 'static str
   ```
 
-### `src/domain/project.rs` (Role: domain, Lines: 163)
+### `src/domain/project.rs` (Role: domain, Lines: 160)
 - **Responsibility**: Core domain logic in src/domain/project.rs
 - **Imports**: use anyhow :: { Context , Result , bail } , use serde :: Deserialize , use sha2 :: { Digest , Sha256 } , use std :: fs , use std :: path :: { Path , PathBuf } , use walkdir :: WalkDir 
 - **Types & Enums**:
@@ -47,7 +52,7 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 ### `src/domain.rs` (Role: domain, Lines: 2)
 - **Responsibility**: Core domain logic in src/domain.rs
 
-### `src/infra/codespace.rs` (Role: infra, Lines: 146)
+### `src/infra/codespace.rs` (Role: infra, Lines: 159)
 - **Responsibility**: Core infra logic in src/infra/codespace.rs
 - **Imports**: use anyhow :: { Context , Result , bail } , use indicatif :: ProgressBar , use serde :: Deserialize , use std :: process :: Command , use std :: time :: Duration , use crate :: domain :: config :: DEFAULT_IDLE_TIMEOUT 
 - **Types & Enums**:
@@ -71,12 +76,13 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
   fn retrieve_binary (codespace_name : & str , remote_path : & str , bin_name : & str , dest_dir : & Path , install_to_bin : bool , spinner : & ProgressBar ,) -> Result < (PathBuf , u64) >
   ```
 
-### `src/infra/remote_builder.rs` (Role: infra, Lines: 83)
+### `src/infra/remote_builder.rs` (Role: infra, Lines: 197)
 - **Responsibility**: Core infra logic in src/infra/remote_builder.rs
-- **Imports**: use anyhow :: { Context , Result , bail } , use indicatif :: ProgressBar , use std :: process :: { Command , Stdio } , use crate :: domain :: config :: BuildConfig 
+- **Imports**: use anyhow :: { Context , Result , bail } , use indicatif :: ProgressBar , use std :: process :: { Command , Stdio } , use crate :: domain :: config :: { BuildConfig , VerifyKind } 
 - **Public Functions & Signatures**:
   ```rust
   fn execute_remote_build (remote_dir : & str , bin_name : & str , config : & BuildConfig , spinner : & ProgressBar ,) -> Result < String >
+  fn execute_remote_verify (remote_dir : & str , kind : & VerifyKind , config : & BuildConfig , spinner : & ProgressBar ,) -> Result < () >
   ```
 
 ### `src/infra/storage.rs` (Role: infra, Lines: 38)
@@ -99,9 +105,9 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 - **Responsibility**: Core infra logic in src/infra.rs
 - **Imports**: pub use codespace :: * , pub use download :: * , pub use remote_builder :: * , pub use storage :: * , pub use sync :: * 
 
-### `src/main.rs` (Role: general, Lines: 207)
+### `src/main.rs` (Role: general, Lines: 269)
 - **Responsibility**: Core general logic in src/main.rs
-- **Imports**: use anyhow :: { Context , Result } , use clap :: Parser , use console :: style , use std :: process :: ExitCode , use std :: time :: Instant , use cli :: { Cli , Commands } , use domain :: config :: { BuildConfig , DEFAULT_CODESPACE_NAME } , use domain :: project :: { ProjectManifest , discover_project } 
+- **Imports**: use anyhow :: { Context , Result } , use clap :: Parser , use console :: style , use std :: process :: ExitCode , use std :: time :: Instant , use cli :: { Cli , Commands } , use domain :: config :: { BuildConfig , DEFAULT_CODESPACE_NAME , VerifyKind } , use domain :: project :: { ProjectManifest , discover_project } 
 
 ### `src/ui.rs` (Role: tui, Lines: 59)
 - **Responsibility**: Core tui logic in src/ui.rs
@@ -125,7 +131,17 @@ Entrypoint ──> CLI/Parser ──> Domain Logic ──> Infra/IO
 
 ## 5. Verification Commands
 ```bash
+# Build
 cargo build --release --target x86_64-unknown-linux-gnu
+
+# Test
 cargo test --all-targets
-cargo clippy --all-targets -- -D warnings && cargo fmt --check
+
+# Lint & Format
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check
 ```
+
+## 6. Recent Iteration Changes
+- **2026-11-16**: Ran full verification suite (check/clippy/fmt/test/release). Fixed formatting drift via `cargo fmt` across `src/cli.rs`, `src/domain/*.rs`, `src/infra/*.rs`, `src/main.rs`. No logic changes.
+- **2026-11-17**: Added remote verification mode: `--check`, `--clippy`, `--test` flags run `cargo check/clippy/test --all-targets` on the Codespace runner via new `infra::execute_remote_verify` + `domain::VerifyKind` (clippy adds `-- -D warnings`). Added shell-quote tokenization for remote cargo args (fixes latent space-in-flag-value bug) and 4 unit tests in `src/infra/remote_builder.rs`.

@@ -33,13 +33,24 @@ pub struct Cli {
     #[arg(long, help = "Do not activate default features")]
     pub no_default_features: bool,
 
-    #[arg(long, help = "Target triple (e.g. x86_64-unknown-linux-gnu, x86_64-unknown-linux-musl)")]
+    #[arg(
+        long,
+        help = "Target triple (e.g. x86_64-unknown-linux-gnu, x86_64-unknown-linux-musl)"
+    )]
     pub target: Option<String>,
 
-    #[arg(short, long, help = "Install compiled binary directly into ~/.local/bin/")]
+    #[arg(
+        short,
+        long,
+        help = "Install compiled binary directly into ~/.local/bin/"
+    )]
     pub install: bool,
 
-    #[arg(short, long, help = "Output directory for compiled binary (default: target/remote/release/)")]
+    #[arg(
+        short,
+        long,
+        help = "Output directory for compiled binary (default: target/remote/release/)"
+    )]
     pub out_dir: Option<PathBuf>,
 
     #[arg(short, long, help = "Name or display name of the Codespace builder")]
@@ -48,11 +59,37 @@ pub struct Cli {
     #[arg(long, help = "Run cargo clean on the remote builder before compiling")]
     pub clean: bool,
 
-    #[arg(short, long, help = "Force remote rebuild without skipping unchanged revisions")]
+    #[arg(
+        short,
+        long,
+        help = "Force remote rebuild without skipping unchanged revisions"
+    )]
     pub force: bool,
 
-    #[arg(short = 'w', long, help = "Keep Codespace running after build (default: auto-stops immediately)")]
+    #[arg(
+        short = 'w',
+        long,
+        help = "Keep Codespace running after build (default: auto-stops immediately)"
+    )]
     pub keep_warm: bool,
+
+    #[arg(
+        long,
+        help = "Run remote cargo check --all-targets instead of building a binary"
+    )]
+    pub check: bool,
+
+    #[arg(
+        long,
+        help = "Run remote cargo clippy --all-targets -- -D warnings instead of building a binary"
+    )]
+    pub clippy: bool,
+
+    #[arg(
+        long,
+        help = "Run remote cargo test --all-targets instead of building a binary"
+    )]
+    pub test: bool,
 
     #[command(subcommand)]
     pub command: Option<Commands>,

@@ -10,8 +10,8 @@ use std::process::ExitCode;
 use std::time::Instant;
 
 use cli::{Cli, Commands};
-use domain::config::{BuildConfig, DEFAULT_CODESPACE_NAME};
-use domain::project::{ProjectManifest, discover_project};
+use domain::config::{BuildConfig, VerifyKind, DEFAULT_CODESPACE_NAME};
+use domain::project::{discover_project, ProjectManifest};
 
 fn main() -> ExitCode {
     match run() {
@@ -37,8 +37,28 @@ fn run() -> Result<()> {
         .or_else(|| manifest.binaries.first().map(|s| s.as_str()))
         .unwrap_or(&manifest.name);
 
-    ui::print_step("Project", &format!("{} (hash: {})", manifest.name, manifest.source_hash));
+    ui::print_step(
+        "Project",
+        &format!("{} (hash: {})", manifest.name, manifest.source_hash),
+    );
+
+    if let Some(kind) = verify_kind(&cli) {
+        return run_remote_verify(&cli, &manifest, bin_name, kind, start_time);
+    }
+
     build_and_fetch(&cli, &manifest, bin_name, start_time)
+}
+
+fn verify_kind(cli: &Cli) -> Option<VerifyKind> {
+    if cli.check {
+        Some(VerifyKind::Check)
+    } else if cli.clippy {
+        Some(VerifyKind::Clippy)
+    } else if cli.test {
+        Some(VerifyKind::Test)
+    } else {
+        None
+    }
 }
 
 fn build_and_fetch(
@@ -48,13 +68,17 @@ fn build_and_fetch(
     start_time: Instant,
 ) -> Result<()> {
     let repo = get_default_repo()?;
-    let cs_name = cli.codespace.clone().unwrap_or_else(|| DEFAULT_CODESPACE_NAME.to_string());
+    let cs_name = cli
+        .codespace
+        .clone()
+        .unwrap_or_else(|| DEFAULT_CODESPACE_NAME.to_string());
 
     let spinner = ui::create_spinner("Connecting to remote Codespace runner...");
     let cs = infra::ensure_builder_codespace(&cs_name, &repo, &spinner)?;
 
     infra::check_and_clean_storage(&cs.name, &spinner)?;
-    let remote_dir = infra::sync_project_source(&cs.name, &manifest.name, &manifest.root_dir, &spinner)?;
+    let remote_dir =
+        infra::sync_project_source(&cs.name, &manifest.name, &manifest.root_dir, &spinner)?;
 
     let config = create_build_config(cli, &cs.name, bin_name);
     let remote_bin = infra::execute_remote_build(&remote_dir, bin_name, &config, &spinner)?;
@@ -75,6 +99,41 @@ fn build_and_fetch(
 
     spinner.finish_and_clear();
     report_completion(bin_name, &local_bin, bytes, start_time, config.install);
+    handle_post_build_lifecycle(&cs.name, config.keep_warm)?;
+    Ok(())
+}
+
+fn run_remote_verify(
+    cli: &Cli,
+    manifest: &ProjectManifest,
+    bin_name: &str,
+    kind: VerifyKind,
+    start_time: Instant,
+) -> Result<()> {
+    let repo = get_default_repo()?;
+    let cs_name = cli
+        .codespace
+        .clone()
+        .unwrap_or_else(|| DEFAULT_CODESPACE_NAME.to_string());
+
+    let spinner = ui::create_spinner("Connecting to remote Codespace runner...");
+    let cs = infra::ensure_builder_codespace(&cs_name, &repo, &spinner)?;
+
+    infra::check_and_clean_storage(&cs.name, &spinner)?;
+    let remote_dir =
+        infra::sync_project_source(&cs.name, &manifest.name, &manifest.root_dir, &spinner)?;
+
+    let mut config = create_build_config(cli, &cs.name, bin_name);
+    config.bin = None; // verification covers every target; no single-binary selection
+
+    infra::execute_remote_verify(&remote_dir, &kind, &config, &spinner)?;
+
+    spinner.finish_and_clear();
+    ui::print_success(&format!(
+        "Remote cargo {} passed ({})",
+        kind.cargo_subcommand(),
+        ui::format_duration(start_time.elapsed())
+    ));
     handle_post_build_lifecycle(&cs.name, config.keep_warm)?;
     Ok(())
 }
@@ -185,7 +244,10 @@ fn cmd_clean() -> Result<()> {
     let cs_name = DEFAULT_CODESPACE_NAME;
     if let Some(cs) = infra::find_builder_codespace(cs_name)? {
         let spinner = ui::create_spinner("Purging remote project caches...");
-        infra::exec_ssh(&cs.name, "rm -rf /workspaces/rust-builder/projects/*/target")?;
+        infra::exec_ssh(
+            &cs.name,
+            "rm -rf /workspaces/rust-builder/projects/*/target",
+        )?;
         spinner.finish_and_clear();
         ui::print_success("Remote target caches cleaned.");
     }

@@ -37,3 +37,20 @@ impl Default for BuildConfig {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VerifyKind {
+    Check,
+    Clippy,
+    Test,
+}
+
+impl VerifyKind {
+    pub fn cargo_subcommand(self) -> &'static str {
+        match self {
+            Self::Check => "check",
+            Self::Clippy => "clippy",
+            Self::Test => "test",
+        }
+    }
+}
