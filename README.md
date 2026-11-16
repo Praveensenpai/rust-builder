@@ -18,7 +18,9 @@ After install, restart your terminal if needed, then check:
 rbuild --help
 ```
 
-To update later, run the same install command again.
+To update later, run either:
+- `rbuild update` (updates in place, from any folder)
+- or the same install command again
 
 ## Before you start
 
