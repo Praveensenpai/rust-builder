@@ -193,6 +193,7 @@ fn handle_subcommand(cmd: Commands) -> Result<()> {
         Commands::Stop { name } => cmd_stop(name),
         Commands::Ssh => cmd_ssh(),
         Commands::Clean => cmd_clean(),
+        Commands::Update => infra::handle_update(),
     }
 }
 

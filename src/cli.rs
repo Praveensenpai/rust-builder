@@ -108,4 +108,6 @@ pub enum Commands {
     Ssh,
     #[command(about = "Purge remote target directories on the Codespace")]
     Clean,
+    #[command(about = "Update rbuild itself to the latest release (from anywhere)")]
+    Update,
 }
