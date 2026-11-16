@@ -136,14 +136,19 @@ pub fn handle_update() -> Result<()> {
         bin_dir.join(BINARY)
     };
 
-    std::fs::copy(&extracted, &install_path)
-        .with_context(|| format!("failed to copy binary to {}", install_path.display()))?;
+    // Write to a temp file in the same dir, then rename over the target.
+    // Direct overwrite fails with ETXTBSY on a running binary.
+    let tmp_bin = install_path.with_extension("new");
+    std::fs::copy(&extracted, &tmp_bin)
+        .with_context(|| format!("failed to stage binary at {}", tmp_bin.display()))?;
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&install_path, std::fs::Permissions::from_mode(0o755))
+        std::fs::set_permissions(&tmp_bin, std::fs::Permissions::from_mode(0o755))
             .context("failed to set permissions")?;
     }
+    std::fs::rename(&tmp_bin, &install_path)
+        .with_context(|| format!("failed to replace binary at {}", install_path.display()))?;
 
     let _ = std::fs::remove_dir_all(&tmp_dir);
 
